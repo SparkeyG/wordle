@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math/rand"
+	rand "math/rand/v2"
 	"os"
 	"regexp"
 	"strings"
@@ -12,29 +12,29 @@ import (
 	"github.com/fatih/color"
 )
 
-func checkGuess(guess string, start_word string, letterList [5]letters.Letter) [5]letters.Letter {
-	fmt.Println(start_word)
+func checkGuess(guess string, startWord string, letterList [5]letters.Letter) [5]letters.Letter {
+	fmt.Println(startWord)
 	var sb strings.Builder
 	sb.WriteString("^")
 	for i, r := range guess {
 		switch r {
 		case '=':
-			fmt.Printf("Exact Match %c \n", start_word[i])
+			fmt.Printf("Exact Match %c \n", startWord[i])
 			letterList[i].IsExact = true
-			letterList[i].ExactLetter = string(start_word[i])
+			letterList[i].ExactLetter = string(startWord[i])
 		case '?':
-			fmt.Printf("Letter Match %c \n", start_word[i])
-			letterList[i].ThisLetter = append(letterList[i].ThisLetter, string(start_word[i]))
+			fmt.Printf("Letter Match %c \n", startWord[i])
+			letterList[i].ThisLetter = append(letterList[i].ThisLetter, string(startWord[i]))
 			for letterIdx := range letterList {
 				if letterIdx == i {
-					letterList[letterIdx].ThisLetter = append(letterList[letterIdx].ThisLetter, string(start_word[i]))
-					letterList[letterIdx].LetterGuess = append(letterList[letterIdx].LetterGuess, string(start_word[i]))
+					letterList[letterIdx].ThisLetter = append(letterList[letterIdx].ThisLetter, string(startWord[i]))
+					letterList[letterIdx].LetterGuess = append(letterList[letterIdx].LetterGuess, string(startWord[i]))
 				}
 			}
 		default:
-			fmt.Printf("No Match %c \n", start_word[i])
+			fmt.Printf("No Match %c \n", startWord[i])
 			for letterIdx := range letterList {
-				letterList[letterIdx].LetterGuess = append(letterList[letterIdx].LetterGuess, string(start_word[i]))
+				letterList[letterIdx].LetterGuess = append(letterList[letterIdx].LetterGuess, string(startWord[i]))
 				// fmt.Println(letterIdx)
 				// fmt.Println(letterList[letterIdx].LetterGuess)
 			}
@@ -50,7 +50,7 @@ func selectStartWord(words []string) string {
 	var accept string
 	acceptWord := false
 	for !acceptWord {
-		wordIndex := rand.Intn(len(words))
+		wordIndex := rand.IntN(len(words))
 		word = words[wordIndex]
 		fmt.Printf("Is %s acceptable? ", word)
 		fmt.Scanln(&accept)
@@ -97,10 +97,8 @@ func main() {
 		}
 		var newWords []string
 		for _, word := range words {
-			matched, err := regexp.MatchString(testString.String(), word)
-			if err != nil {
-				fmt.Println("Error: ", err)
-			} else if matched {
+			matched, _ := regexp.MatchString(testString.String(), word)
+			if matched {
 				addString := true
 				for idx := range letterList {
 					for letterIdx := range letterList[idx].ThisLetter {
@@ -116,13 +114,14 @@ func main() {
 		}
 		fmt.Println(testString.String())
 		fmt.Println("There are ", len(newWords), " words left")
-		if len(newWords) == 1 {
+		switch len(newWords) {
+		case 1:
 			correctGuess = true
 			fmt.Println("Your word has to be ", newWords[0])
-		} else if len(newWords) == 0 {
+		case 0:
 			fmt.Println("There is something wrong, there are no words left")
 			os.Exit(1)
-		} else {
+		default:
 			words = newWords
 		}
 	}
