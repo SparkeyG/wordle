@@ -18,7 +18,7 @@ func (l Letter) MakeRegexString() string {
 	}
 	this.WriteString("[^")
 	for _, char := range l.LetterGuess {
-		this.WriteString(string(char))
+		this.WriteString(char)
 	}
 	this.WriteString("]")
 	return this.String()
